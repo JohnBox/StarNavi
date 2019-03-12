@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 
-from .serializers import UserSerializer, PostSerializer
-from .models import Post
+from .serializers import UserSerializer, PostSerializer, LikeSerializer
+from .models import Post, Like
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -15,3 +15,14 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Post.objects.filter(user=self.kwargs['user_pk'])
+
+
+class LikeViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                  viewsets.GenericViewSet):
+    serializer_class = LikeSerializer
+
+    def get_queryset(self):
+        return Like.objects.filter(post=self.kwargs['post_pk'])
+
+
