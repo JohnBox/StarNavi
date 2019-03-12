@@ -4,6 +4,8 @@ from rest_framework import serializers
 from pyhunter import PyHunter
 import clearbit
 
+from .models import Post
+
 clearbit.key = 'sk_7cf5e2e645cbe27d9c4f865aef594142'
 
 hunter = PyHunter('b6d0ce8c8da73db68946e7ae3743b4327ef8b5d8')
@@ -33,6 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('id', 'user', 'title', 'content', 'created')
 
 

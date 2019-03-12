@@ -1,14 +1,17 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import permission_classes
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, PostSerializer
+from .models import Post
 
 
 class UserViewSet(viewsets.ModelViewSet):
-
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
 
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        return Post.objects.filter(user=self.kwargs['user_pk'])
