@@ -12,13 +12,12 @@ hunter = PyHunter('b6d0ce8c8da73db68946e7ae3743b4327ef8b5d8')
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
-    posts = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name', 'posts')
+        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True, 'required': True},
+                        'email': {'required': True}}
 
     def create(self, validated_data):
         try:
@@ -43,14 +42,35 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.StringRelatedField(many=True, read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Post
-        fields = ('id', 'user', 'title', 'content', 'created', 'likes')
+        fields = ('id', 'user', 'title', 'content', 'created')
+
+    def create(self, validated_data):
+        post = Post.objects.create(user=self.context['user'], **validated_data)
+        return post
 
 
 class LikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    post = PostSerializer(read_only=True)
+
     class Meta:
         model = Like
         fields = ('id', 'user', 'post')
+
+    def create(self, validated_data):
+        like = Like.objects.create(user=self.context['user'], 
+                                   post=Post.objects.get(pk=self.context['post_pk']))
+        return like
+    
+    def validate(self, attrs):
+        try:
+            Like.objects.get(user=self.context['user'],
+                             post=Post.objects.get(pk=self.context['post_pk']))
+        except:
+            return {}
+        else:
+            raise serializers.ValidationError('like already created')

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, mixins
+from rest_framework.response import Response
 from .serializers import UserSerializer, PostSerializer, LikeSerializer
 from .models import Post, Like
 from .permissions import *
@@ -30,6 +31,12 @@ class PostViewSet(viewsets.ModelViewSet):
             self.permission_classes = (AnonPostPermission,)
         return super().get_permissions()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
+
 
 class LikeViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                   mixins.CreateModelMixin, mixins.DestroyModelMixin,
@@ -45,5 +52,12 @@ class LikeViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         else:
             self.permission_classes = (AnonLikePermission,)
         return super().get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'user': request.user,
+                                                                       'post_pk': kwargs['post_pk']})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(serializer.data)
 
 
