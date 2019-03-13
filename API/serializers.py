@@ -14,7 +14,7 @@ hunter = PyHunter('b6d0ce8c8da73db68946e7ae3743b4327ef8b5d8')
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
-    posts = serializers.StringRelatedField(read_only=True)
+    posts = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -43,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    likes = serializers.StringRelatedField(read_only=True)
+    likes = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Post
