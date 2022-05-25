@@ -16,7 +16,7 @@ MarkupSafe==1.1.1
 mypy==0.670
 mypy-extensions==0.4.1
 pyhunter==0.3
-PyJWT==1.7.1
+PyJWT==2.4.0
 pytz==2018.9
 randomuser==1.4.0
 requests==2.21.0
